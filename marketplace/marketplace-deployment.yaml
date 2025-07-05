@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keval-marketplace-deployment
+  labels:
+    app: keval-marketplace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keval-marketplace
+  template:
+    metadata:
+      labels:
+        app: keval-marketplace
+    spec:
+      containers:
+      - name: keval-marketplace-container
+        image: keval/marketplace:latest
+
+        # Always use locally available image
+        imagePullPolicy: Never
+
+        # Port within the container to expose
+        ports:
+        - containerPort: 8080
+
+        # Resource limits for individual containers
+        resources:
+          # Max amount of resources to provision to a single container
+          limits:
+            cpu: 500m
+            memory: 1024Mi
+          # Min amount of resources to provision to a single container
+          requests:
+            cpu: 200m
+            memory: 512Mi
+            
+        # Environment Variable configuration for Spring
+        env:
+          - name: SPRING_APPLICATION_JSON
+            value: '{
+              "pods.usersUrl": "http://keval-users-service:8080",
+              "pods.walletsUrl": "http://keval-wallets-service:8080",
+              "spring.datasource.url": "jdbc:h2:tcp://keval-marketplace-db-service:9082/~/test;AUTO_SERVER=true;DEFAULT_LOCK_TIMEOUT=10000",
+              "spring.datasource.driverClassName": "org.h2.Driver",
+              "spring.datasource.username": "sa",
+              "spring.datasource.password": "",
+              "spring.jpa.hibernate.ddl-auto": "update",
+              "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.H2Dialect"
+            }'

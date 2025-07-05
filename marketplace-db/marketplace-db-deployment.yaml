@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keval-marketplace-db-deployment
+  labels:
+    app: keval-marketplace-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keval-marketplace-db
+  template:
+    metadata:
+      labels:
+        app: keval-marketplace-db
+    spec:
+      containers:
+      - name: keval-marketplace-db-container
+        image: keval/marketplace-db:latest
+        # Always use locally available image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9082
